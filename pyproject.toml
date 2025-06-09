@@ -1,0 +1,32 @@
+[build-system]
+requires = ["flit_core >=3.2,<4"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "fplume_montecarlo"
+version = "0.0.1"
+description = "Perform a Montecarlo simulation to retrieve the height of the volcanic cloud from selected Etna's volcanic eruptions"
+authors = [
+  { name = "Daniele Nigro" },
+]
+
+readme = "README.md"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    
+]
+requires-python = "==3.9"
+
+
+[tool.ruff]
+line-length = 99
+src = ["src/fplume_montecarlo"]
+include = ["pyproject.toml", "src/fplume_montecarlo/**/*.py"]
+
+[tool.ruff.lint]
+extend-select = ["I"]  # Add import sorting
+
+[tool.ruff.lint.isort]
+known-first-party = ["fplume_montecarlo"]
+force-sort-within-sections = true
+

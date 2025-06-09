@@ -1,0 +1,109 @@
+   !
+   !  Input file for the IAVCEI intercomparison exercise
+   !
+ TIME_UTC
+   !
+   !    YEAR                                : value (YYYY)
+   !    MONTH                               : value (MM)
+   !    DAY                                 : value (DD)
+   !    ERUPTION_START_(HOURS_AFTER_00)     : ndt values (start time of each eruptive phase)
+   !    ERUPTION_END_(HOURS_AFTER_00)       : value
+   !
+   YEAR = {{ year }}
+   MONTH = {{ month }}
+   DAY = {{ day }}
+   ERUPTION_START_(HOURS_AFTER_00) = {{ hour }}
+   ERUPTION_END_(HOURS_AFTER_00) = 23
+   !
+ SOURCE
+   !
+   !    LON_VENT                : value
+   !    LAT_VENT                : value
+   !    VENT_HEIGHT_(M)         : value
+   !
+   !    SOLVE_PLUME_FOR options : MFR/HEIGHT
+   !    MFR_SEARCH_RANGE        : Give n1 and n2, where: 10**n1 < MFR < 10**n2. Only used if SOLVE_PLUME_FOR = MFR
+   !
+   !    HEIGHT_ABOVE_VENT_(M)   : ndt values. Only used if SOLVE_PLUME_FOR = MFR
+   !    MASS_FLOW_RATE_(KGS)    : ndt values. Only used if SOLVE_PLUME_FOR = HEIGHT
+   !    EXIT_VELOCITY_(MS)      : ndt values
+   !    EXIT_TEMPERATURE_(K)    : ndt values
+   !    EXIT_WATER_FRACTION_(%) : ndt values
+   !
+   !    TERMINAL_VELOCITY_MODEL   options : ARASTOOPOUR/GANSER/WILSON/DELLINO
+   !
+   LON_VENT        =  37.75
+   LAT_VENT        =  15.00
+   VENT_HEIGHT_(M) = 3350.
+   !
+   SOLVE_PLUME_FOR =  HEIGHT
+   MFR_SEARCH_RANGE = 3.0  7.0
+   !
+   HEIGHT_ABOVE_VENT_(M) = 6000.
+   MASS_FLOW_RATE_(KGS)  = {{ "%.3f"|format(MER) }}
+   EXIT_VELOCITY_(MS) = {{ "%.3f"|format(exit_velocity) }}
+   EXIT_TEMPERATURE_(K) = {{ "%.3f"|format(exit_temperature) }}
+   EXIT_WATER_FRACTION_(%) = {{ "%.3f"|format(exit_water_fraction) }}
+   !
+   TERMINAL_VELOCITY_MODEL = ganser
+   !
+AGGREGATION
+   !
+   !  AGGREGATION_MODEL options : NONE/PERCENTAGE/CORNELL/COSTA
+   !  FI_AGGREGATES        : value. Not used  if AGGREGATION_MODEL = NONE
+   !  DENSITY_AGGREGATES   : value. Not used  if AGGREGATION_MODEL = NONE
+   !  VSET_FACTOR          : value. Not used  if AGGREGATION_MODEL = NONE
+   !  PERCENTAGE_(%)       : value. Only used if AGGREGATION_MODEL = PERCENTAGE
+   !  FRACTAL_EXPONENT     : value. Only used if AGGREGATION_MODEL = COSTA
+   !
+   AGGREGATION_MODEL = NONE
+   FI_AGGREGATES = 2.
+   DENSITY_AGGREGATES = 350.
+   VSET_FACTOR = 1.0
+   PERCENTAGE_(%) = 20.
+   FRACTAL_EXPONENT = 2.99
+   !
+ METEO
+   !
+   !    METEO_DATA            : PROFILE/STANDARD_ATMOSPHERE
+   !
+   METEO_DATA = PROFILE
+   !
+ CONSTANTS
+   !
+   !  Cp  : value. Specific heat of pyroclasts   at constant pressure. Default 1600 J/kgK
+   !  Ca  : value. Specific heat of air          at constant pressure. Default 1000 J/kgK
+   !
+   Ca         = 1004.5
+   Cp         = {{ "%.3f"|format(cp) }}
+   !  
+   !  Cw  : value. Specific heat of water (vapour,liquid,ice) only if latent_heat=no
+   !               Default 2000 J/kgK
+   Cw         = 2000.0 
+   !
+  MODELLING
+   !
+   ! WIND_COUPLING : yes/no. If NO, Ua=0 is assumed
+   ! AIR_MOISTURE  : yes/no. If NO, wa=0 is assumed (dry entrained air only)
+   ! REENTRAINMENT : yes/no. If NO, particle reentrainment is neglected (f=0)
+   ! LATENT_HEAT   : yes/no. If NO, latent heat contribution is neglected
+   !
+   ! xi            : value. Constant in eq (1g).                            Default 0.23 (Bursik 2001).
+   ! zmin_wind     : value. Ignore wind entrainment in the low jet region.  Default 0.0
+   ! c_umbrella    : value. Thickness of umbrella relative to Hb (>1).      Default 1.2  (1.3 for strong plume and 1.1 for weak)
+   !
+   ! a_s  options  : CONSTANT (value jet, value plume) / KAMINSKI-R / KAMINSKI-C / OLD
+   ! a_v  options  : CONSTANT (value) / TATE
+   !
+   WIND_COUPLING = yes
+   AIR_MOISTURE  = yes
+   LATENT_HEAT   = yes
+   REENTRAINMENT = yes
+   !
+   xi         = 0.23
+   zmin_wind  = 0.0
+   c_umbrella =  {{ "%.3f"|format(c_umbrella) }}
+   !
+   a_s  = KAMINSKI-C
+   a_v  = TATE
+   !
