@@ -19,7 +19,7 @@ https://cookiecutter-data-science.drivendata.org/
 │   │   ├── templates                                   # Input templates for FPLUME
 │   │   │   ├── template_fplume.inp                     # Volcanic parameters input template
 │   │   │   └── template_fplume.tgsd                    # Particle size distribution input template
-│   │   └── tmp_montecarlo                              # Temporary working directory fro FPLUME runs
+│   │   └── tmp_montecarlo                              # Temporary working directory for FPLUME runs
 │   ├── processed                                       # Final, processed data
 │   │   └── column_files                                # Simulation outputs of plume height
 │   │  
@@ -44,7 +44,7 @@ https://cookiecutter-data-science.drivendata.org/
 
 1. **Install FPLUME v1.3**
 
-FPLUME requires a Linux environment, and GFortran version <= 8 (available in Ubuntu versions <= 20). Download FPLUME v1.3 from this site: http://datasim.ov.ingv.it/models/fplume.html and follow the instructions of the user manual to install. The software must be installed in the root directory and the folder must be named "fplume-1.3".
+FPLUME requires a Linux environment, and GFortran version <= 8 (available in Ubuntu versions <= 20). Download FPLUME v1.3 from this site: http://datasim.ov.ingv.it/models/fplume.html and follow the instructions of the user manual to install. The software must be installed in the root directory of the project, and the folder must be named "fplume-1.3".
 
 2. **Copernicus CDS Account** 
 
@@ -55,7 +55,7 @@ To donload ERA5 reanalysis, please register to the site: https://cds.climate.cop
 In the project root:
 ```
 python3 -m venv venv
-source activate venv/bin/activate
+source venv/bin/activate
 pip install -r requirements.txt
 ```
 ## Workflow
