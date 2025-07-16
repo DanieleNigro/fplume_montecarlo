@@ -51,7 +51,7 @@ FPLUME requires a Linux environment, and GFortran version <= 8 (available in Ubu
 
 2. **Copernicus CDS Account** 
 
-To donload ERA5 reanalysis, please register to the site: https://cds.climate.copernicus.eu/. Copy your API key from your CDS profile and save locally in a .txt file. Then modify KEYS_DIR and KEY_ERA5_FILE to point to your file.
+To donload ERA5 reanalysis, please register to the site: https://cds.climate.copernicus.eu/. Copy your API key from your CDS profile and save locally in a .txt file. Then modify keys_dir and key_era5_file to point to your file.
 
 3. **Create and activate a virtual environment**
 
