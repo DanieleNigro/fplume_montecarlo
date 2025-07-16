@@ -18,8 +18,10 @@ import xarray as xr
 from pathlib import Path
 
 # --- Import Import ERA5 directories, volcanic erupions file
-from fplume_montecarlo.config import ERA5_DIR, FPLUME_MET_FILES_DIR, ERUPTIONS_FILE
-from fplume_montecarlo.utilities import load_events
+from fplume_montecarlo.config import PROJ_ROOT, ERA5_DIR, FPLUME_MET_FILES_DIR, ERUPTIONS_FILE
+from fplume_montecarlo.utilities import load_events,load_config
+
+CONFIG = load_config(PROJ_ROOT / "config.yaml")
 
 def process_era5_data(nc_file):
     """
@@ -39,13 +41,14 @@ def process_era5_data(nc_file):
             - 'Wind Velocity West->East (m/s)'
             - 'Wind Velocity North->South (m/s)'
     """
-    # ---Etna Coordinates
-    lat_etna = 15.0
-    lon_etna = 37.5
+    # ---Volcano Coordinates
+    VOLCANO = CONFIG["volcano"]  # This is now a Volcano object
+    lat_volcano = VOLCANO.latitude
+    lon_volcano = VOLCANO.longitude
 
     # ---Select variables and downscale every 5 hPa
     ds = xr.open_dataset(nc_file)
-    ds = ds.sel(latitude=lat_etna, longitude=lon_etna, method='nearest')
+    ds = ds.sel(latitude=lat_volcano, longitude=lon_volcano, method='nearest')
 
     downscaled_pressure_levels = np.arange(ds.pressure_level.max(), ds.pressure_level.min(), -5)
     ds_interp = ds.interp(pressure_level=downscaled_pressure_levels)

@@ -12,8 +12,13 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 from datetime import datetime
-from fplume_montecarlo.config import ERUPTIONS_FILE, COLUMN_FILES_DIR, PLOTS_DIR
-from fplume_montecarlo.utilities import load_events
+from fplume_montecarlo.config import PROJ_ROOT, ERUPTIONS_FILE, COLUMN_FILES_DIR, PLOTS_DIR
+from fplume_montecarlo.utilities import load_events, load_config
+
+CONFIG = load_config(PROJ_ROOT / "config.yaml")
+
+# ---Load volcano features
+VOLCANO = CONFIG["volcano"]  # This is now a Volcano object
 
 # ---Load event metadata
 events = load_events(ERUPTIONS_FILE, code=None)
@@ -39,7 +44,7 @@ for filename in sorted(os.listdir(COLUMN_FILES_DIR)):
             with open(file_path, "r") as file:
                 # ---Retrieve column heights from .column files
                 values = [float(val) for line in file for val in line.strip().split()]
-                values = np.array(values) + 3350                                        # Add height of Etna (3350 m)
+                values = np.array(values) + VOLCANO.height                              # Add height of the volcano
 
             # ---Retrieve radar-based MER and column height from event metadata
             radar_value = event.get("h")
@@ -98,27 +103,37 @@ for values in boxplot_data:
         stats['whislo'], stats['q1'], stats['med'], stats['q3'], stats['whishi']
     ])
 
-# ---Compute ECDF Percentiles
+# ---Compute ECDF Percentiles including uncertainty
 ecdf_percentiles = []
 for entry in combined_data:
     values = entry['values']
     radar_value = entry['radar_value']
     sorted_vals = np.sort(values)
     n = len(sorted_vals)
-    percentile = np.searchsorted(sorted_vals, radar_value, side='right') / n
+
+    low = np.searchsorted(sorted_vals, radar_value - 300, side='right') / n
+    mid = np.searchsorted(sorted_vals, radar_value, side='right') / n
+    high = np.searchsorted(sorted_vals, radar_value + 300, side='right') / n
+
     ecdf_percentiles.append({
         'date': entry['date'],
         'radar_value': radar_value,
-        'percentile': percentile
+        'percentile': mid,
+        'low': low,
+        'high': high
     })
 
 # ---Print ECDF Percentile Table
-print(f"{'Date':<20} {'Radar Value':>12} {'ECDF Percentile':>18}")
+print(f"{'Date':<20} {'Radar Value':>12} {'ECDF Percentile':>18} {'Range':>18}")
 for e in ecdf_percentiles:
-    print(f"{e['date'].strftime('%Y-%m-%d %H:%M'): <20} {e['radar_value']:>12.1f} {e['percentile']*100:>17.1f}%")
+    print(f"{e['date'].strftime('%Y-%m-%d %H:%M'): <20} {e['radar_value']:>12.1f} "
+          f"{e['percentile']*100:>17.1f}%  [{e['low']*100:.1f}% – {e['high']*100:.1f}%]")
 
-# ---Plot
-fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 8), sharex=True, gridspec_kw={'height_ratios': [1, 1]})
+# --- Plot
+fig, (ax1, ax2, ax3) = plt.subplots(
+    3, 1, figsize=(12, 16), sharex=True,
+    gridspec_kw={'height_ratios': [1.2, 0.8, 0.8]}
+)
 
 # --- Top Plot: Boxplot with radar measurements
 ax1.bxp([{
@@ -138,33 +153,50 @@ ax1.bxp([{
     capprops=dict(color='black')
 )
 
-ax1.scatter(scatter_x, scatter_y, color='red', label='H radar', zorder=3)
+ax1.errorbar(
+    scatter_x, scatter_y, yerr=300,
+    fmt='o', color='red', label='H radar',
+    capsize=4, zorder=3, markersize=3
+)
 ax1.set_ylabel("Height (m)", fontsize=14)
 ax1.grid(True)
 ax1.set_ylim([4000, 16001])
 ax1.legend(fontsize=12)
 ax1.tick_params(axis='x', which='both', labelbottom=False)
 
-# --- Bottom Plot: MER bar chart + ECDF on secondary axis
+# --- Middle Plot: ECDF Percentiles (with radar uncertainty)
+percentiles = [e['percentile'] * 100 for e in ecdf_percentiles]     # convert to %
+percentile_errors = [
+    [(e['percentile'] - e['low']) * 100, (e['high'] - e['percentile']) * 100]
+    for e in ecdf_percentiles
+]
+percentile_errors = np.array(percentile_errors).T  # shape: (2, N)
+
+ax2.errorbar(
+    positions, percentiles,
+    yerr=percentile_errors,
+    fmt='o', color='red', label='ECDF Percentile',
+    capsize=4, markersize=3
+)
+ax2.set_ylabel("ECDF Percentile (%)", fontsize=14, color='red')
+ax2.set_ylim([0, 100.1])
+ax2.tick_params(axis='y', labelcolor='red', labelsize=12)
+ax2.grid(True, linestyle='--', linewidth=0.5)
+ax2.legend(fontsize=12)
+ax2.tick_params(axis='x', which='both', labelbottom=False)
+
+# --- Bottom Plot: MER (log scale)
 mer_values = [entry['mer'] for entry in combined_data]
-percentiles = [e['percentile'] * 100 for e in ecdf_percentiles]  # Convert to %
+ax3.bar(positions, mer_values, color='skyblue', label='MER [kg/s]')
+ax3.set_yscale('log')
+ax3.set_ylabel("MER [kg/s]", fontsize=14, color='blue')
+ax3.set_ylim([1e4, 1e7])
+ax3.tick_params(axis='y', labelcolor='blue', labelsize=12)
+ax3.set_xticks(positions)
+ax3.set_xticklabels(boxplot_labels, rotation=90, fontsize=10)
+ax3.grid(True, which='both', linestyle='--', linewidth=0.5)
+ax3.legend(fontsize=12)
 
-ax2.bar(positions, mer_values, color='skyblue', label='MER [kg/s]')
-ax2.set_yscale('log')
-ax2.set_ylabel("MER [kg/s]", fontsize=14, color='blue')
-ax2.set_ylim([1e4, 1e7])
-ax2.tick_params(axis='y', labelcolor='blue', labelsize=12)
-
-ax2b = ax2.twinx()
-ax2b.plot(positions, percentiles, color='r', marker='o', label='ECDF %')
-ax2b.set_ylim([0, 100.1])
-ax2b.set_ylabel("ECDF Percentile (%)", fontsize=14, color='r')
-ax2b.tick_params(axis='y', labelcolor='r', labelsize=12)
-
-ax2.set_xticks(positions)
-ax2.set_xticklabels(boxplot_labels, rotation=90, fontsize=10)
-ax2.grid(True, which='both', linestyle='--', linewidth=0.5)
-
-# ---Save plot
+# --- Save plot
 fig.tight_layout()
 plt.savefig(PLOTS_DIR / "box_plot_Montecarlo_FPLUME.png", dpi=300, bbox_inches='tight')

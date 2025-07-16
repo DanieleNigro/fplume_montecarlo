@@ -80,3 +80,28 @@ export PRINT_HELP_PYSCRIPT
 
 help:
 	@$(PYTHON_INTERPRETER) -c "${PRINT_HELP_PYSCRIPT}" < $(MAKEFILE_LIST)
+
+## Run the full pipeline for all codes
+.PHONY: run-all
+run-all:
+	@bash -c "source venv/bin/activate && cd src && \
+	python -m fplume_montecarlo.download_era5 --all && \
+	python -m fplume_montecarlo.create_met_file --all && \
+	python -m fplume_montecarlo.prepare_input_files --all && \
+	python -m fplume_montecarlo.run_montecarlo --all && \
+	python -m fplume_montecarlo.plot_montecarlo && \
+	python -m fplume_montecarlo.qqplot_montecarlo"
+
+## Run the pipeline for a specific code: make run-code CODE=123
+.PHONY: run-code
+run-code:
+ifndef CODE
+	$(error CODE is not set. Usage: make run-code CODE=123)
+endif
+	@bash -c "source venv/bin/activate && cd src && \
+	python -m fplume_montecarlo.download_era5 --code $(CODE) && \
+	python -m fplume_montecarlo.create_met_file --code $(CODE) && \
+	python -m fplume_montecarlo.prepare_input_files --code $(CODE) && \
+	python -m fplume_montecarlo.run_montecarlo --code $(CODE) && \
+	python -m fplume_montecarlo.plot_montecarlo && \
+	python -m fplume_montecarlo.qqplot_montecarlo"

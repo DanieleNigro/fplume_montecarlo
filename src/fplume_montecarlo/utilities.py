@@ -1,4 +1,4 @@
-from fplume_montecarlo.config import ERUPTIONS_FILE
+from fplume_montecarlo.config import ERUPTIONS_FILE, PROJ_ROOT
 
 def progress_bar(url, save_path, chunk_size=1024):
     """
@@ -64,3 +64,21 @@ def load_events(filepath, code=None):
         event["date_prefix"] = f"{event['year']}_{event['month']}_{event['day']}_{event['hour']}"
         events.append(event)
     return events
+
+def load_config(config_file="config.yaml"):
+    "Read config.yaml"
+    import yaml
+    from fplume_montecarlo.volcanoes import VOLCANOES
+
+    with open(config_file, "r") as f:
+        config = yaml.safe_load(f)
+
+    # Replace volcano name with actual Volcano instance
+    volcano_name = config.get("volcano")
+    try:
+        config["volcano"] = VOLCANOES[volcano_name]
+        
+    except KeyError:
+        raise ValueError(f"Unknown volcano '{volcano_name}' in config.yaml. Available: {list(VOLCANOES.keys())}")
+
+    return config

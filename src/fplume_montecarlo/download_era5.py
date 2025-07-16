@@ -14,15 +14,20 @@ import os
 import argparse
 
 # --- Import ERA5 directories, volcanic erupions file, and ERA5 key API file from local
-from fplume_montecarlo.config import ERUPTIONS_FILE, ERA5_DIR, KEYS_DIR, KEY_ERA5_FILE
+from fplume_montecarlo.config import PROJ_ROOT, ERUPTIONS_FILE, ERA5_DIR
 
-# --- Import progress bar function
-from fplume_montecarlo.utilities import progress_bar, load_events
+# --- Import progress bar function and events
+from fplume_montecarlo.utilities import progress_bar, load_events, load_config
+CONFIG = load_config(PROJ_ROOT / "config.yaml")
 
 # --- Import Copernicus ERA5 API from local
 CDS_URL = 'https://cds.climate.copernicus.eu/api'
 
-with open(os.path.join(KEYS_DIR,KEY_ERA5_FILE)) as f:
+# --- Extract key paths from config
+key_dir = CONFIG["user_paths"]["key_dir"]
+key_era5_file = CONFIG["user_paths"]["key_era5_file"]
+
+with open(os.path.join(key_dir,key_era5_file)) as f:
     CDS_KEY = f.read().strip()
 
 # --- Select variables to download from the pressure level dataset
@@ -40,7 +45,11 @@ pressure_levels=["5", "7", "10", "20", "30",
     "900", "925", "950","975", "1000",
 ]
 # --- Select domain to download  [N W S E]
-area = [38, 14, 36, 16]   # reasonable domain for Etna location: lat = 37.75, lon = 15.00
+VOLCANO = CONFIG["volcano"]  # This is now a Volcano object
+lat_volcano = VOLCANO.latitude
+lon_volcano = VOLCANO.longitude
+
+area = [lat_volcano +1, lon_volcano -1, lat_volcano-1, lon_volcano + 1]   # reasonable domain for Etna location: lat = 37.75, lon = 15.00
 
 
 def download_era5_pressure_levels(year, month, day, hour, pressure_level_vars, pressure_levels, CDS_URL, CDS_KEY):

@@ -9,6 +9,7 @@ https://cookiecutter-data-science.drivendata.org/
 ```
 ├── Makefile                                            # Makefile with convenience commands like `make data` or `make train`
 ├── README.md                                           # This README
+|-- config.yaml                                         # Configuration file
 ├── bin                                                 # Executables
 │   └── run_montecarlo.sh                               # Run the full workflow
 ├── data                                                
@@ -32,12 +33,14 @@ https://cookiecutter-data-science.drivendata.org/
     └── fplume_montecarlo                               
         ├── __init__.py                                 
         ├── config.py                                   # Global configuration and constants
+        |-- volcanoes.py                                # Define the class volcano
         ├── create_met_file.py                          # Generate .met file from ERA5 reanalysis
         ├── download_era5.py                            # Download ERA5 datasets
         ├── generate_inp_file.py                        # Generate .inp file for FPLUME
         ├── plot_montecarlo.py                          # Plot Monte Carlo results
         ├── prepare_input_files.py                      # Prepare inputs for FPLUME runs
         ├── run_montecarlo.py                           # Run Monte Carlo Simulation
+        |-- qqplot_montecarlo.py                        # Create qq plots from Monte Carlo results
         └── utilities.py                                # Helper functions
 ```
 ## Requirements
@@ -63,39 +66,45 @@ pip install -r requirements.txt
 
 Edit list_eruptions.txt. For each event, specify an integer code, year (YYYY), month (MM), day (DD) and hour (HH) of the eruptions. Add the Mass Eruption Rate (kg/s) retrieved from the weather radar, the exit velocity (m/s), and the height of the volcanic column retrieved from the weather radar.
 
-2. **Download ERA5 pressure-levels datasets**
+2. **Configure simulation**
+
+Edit config.yaml, selecticing the Volcano, the number of Monte Carlo iterations and the range of input parameters for F>
+
+3. **Download ERA5 pressure-levels datasets**
 ```
 python -m fplume_montecarlo.download_era5 --code <int>         # for a single event
 python -m fplume_montecarlo.download_era5 --all                # for all the events
 ```
-3. **Create the .met file from ERA5 datasets**
+4. **Create the .met file from ERA5 datasets**
 
 These files contain the vertical profile of meteorological variables required by FPLUME:
 ```
 python -m fplume_montecarlo.create_met_file --code <int>         # for a single event
 python -m fplume_montecarlo.create_met_file --all                # for all the events
 ```
-4. **Prepare input files for FPLUME** 
+5. **Prepare input files for FPLUME** 
 
 Copies the required .met file and the .tgsd file (containing the particle size distribution) to the working directory. The .tgsd file is fixed by default for all the events, while the .met file is stationary throught the Monte Carlo simulation.
 ```
 python -m fplume_montecarlo.prepare_input_files --code <int>         # for a single event
 python -m fplume_montecarlo.prepare_input_files --all                # for all the events
 ```
-5. **Run the Monte Carlo simulation** 
+6. **Run the Monte Carlo simulation** 
 
 For each iteration, a .inp file (from template_fplume.inp) containing the perturbed volcanic initial conditions, is generated and used by FPLUME. The resulting plume height is stored in .column files. The number of iterations is set by N_MONTECARLO in config.py
 ```
 python -m fplume_montecarlo.run_montecarlo --code <int>         # for a single event
 python -m fplume_montecarlo.run_montecarlo --all                # for all the events
 ```
-6. **Plot results**
+7. **Plot results**
 
-Generate a two-panel figure:
+Generate a three-panel figure:
 -top: boxplots of simulated column heights and scatter plot of radar observations;
--bottom: MER bar chart and ECDF of the radar value within the simulation distribution.
+-center: ECDF of the radar column height within the distribution simulation;
+-bottom: MER bar chart of all the events.
 ```
 python -m fplume_montecarlo.plot_montecarlo
+python -m fplume_montecarlo.qqplot_montecarlo
 ```
 ## Run all with bash script
 
@@ -108,4 +117,3 @@ This script:
 - Activates the virtual environment;
 - Sets the correct paths;
 - Executes the entire workflow in sequence.
-

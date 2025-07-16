@@ -29,6 +29,7 @@ if [ "$1" == "--all" ]; then
   python -m fplume_montecarlo.prepare_input_files --all
   python -m fplume_montecarlo.run_montecarlo --all
   python -m fplume_montecarlo.plot_montecarlo
+  python -m fplume_montecarlo.qqplot_montecarlo
 elif [ "$1" == "--code" ]; then
   if [ -z "$2" ]; then
     echo "Error: Missing number after --code"
@@ -40,6 +41,7 @@ elif [ "$1" == "--code" ]; then
   python -m fplume_montecarlo.prepare_input_files --code $2
   python -m fplume_montecarlo.run_montecarlo --code $2
   python -m fplume_montecarlo.plot_montecarlo
+  python -m fplume_montecarlo.qqplot_montecarlo
 else
   echo "Invalid option: $1"
   echo "Usage: $0 --code <n> OR $0 --all"

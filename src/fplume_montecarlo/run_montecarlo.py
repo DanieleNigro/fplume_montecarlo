@@ -1,5 +1,5 @@
 """
-Runs FPLUME for a number of steps defined by N_MONTECARLO to simulate 
+Runs FPLUME for a number of steps defined by n_montecarlo to simulate 
 the volcanic column height.
 
 Generates a .column file containing the distribution of simulated column heights.
@@ -16,8 +16,14 @@ import shutil
 
 # ---Import directories and utilities
 from fplume_montecarlo.generate_inp_file import generate_inp_file
-from fplume_montecarlo.config import ERUPTIONS_FILE, FPLUME_EXE_DIR, TMP_MONTECARLO_DIR, TEMPLATE_FILE, N_MONTECARLO, COLUMN_FILES_DIR
-from fplume_montecarlo.utilities import load_events
+from fplume_montecarlo.config import PROJ_ROOT, ERUPTIONS_FILE, FPLUME_EXE_DIR, TMP_MONTECARLO_DIR, TEMPLATE_FILE, COLUMN_FILES_DIR
+from fplume_montecarlo.utilities import load_events, load_config
+
+CONFIG = load_config(PROJ_ROOT / "config.yaml")
+
+# ---Load n_montecarlo from config.yaml
+
+n_montecarlo = CONFIG["n_montecarlo"]
 
 # ---FPLUME executable file
 FPLUME_EXE = FPLUME_EXE_DIR / "fplume"
@@ -40,8 +46,8 @@ def run_fplume(event):
     column_file = output_dir / f"{date_prefix}.column"
     column_file.unlink(missing_ok=True)  # Remove if it exists
 
-    for i in range(1, N_MONTECARLO +1):
-        print(f"  Iteration {i} of {N_MONTECARLO}")
+    for i in range(1, n_montecarlo +1):
+        print(f"  Iteration {i} of {n_montecarlo} for {date_prefix}")
 
         # ---Generate randomized input file
         inp_path = generate_inp_file(
@@ -78,16 +84,20 @@ def run_fplume(event):
                 col_f.write(last_val + "\n")
 
         # ---Clear working directories        
-        if i == N_MONTECARLO:
+        if i == n_montecarlo:
             shutil.copy(column_file, COLUMN_FILES_DIR)
-            if item.name.startswith(date_prefix):
-                for item in target_path.iterdir():
+
+            # Clean only files/directories starting with date_prefix inside target_path
+            for item in target_path.iterdir():
+                if item.name.startswith(date_prefix):
                     if item.is_dir():
                         shutil.rmtree(item)
                     else:
                         item.unlink()
-            if item.name.startswith(date_prefix):
-                for item in TMP_MONTECARLO_DIR.iterdir():
+
+            # Similarly, clean only matching files/directories in TMP_MONTECARLO_DIR
+            for item in TMP_MONTECARLO_DIR.iterdir():
+                if item.name.startswith(date_prefix):
                     if item.is_dir():
                         shutil.rmtree(item)
                     else:

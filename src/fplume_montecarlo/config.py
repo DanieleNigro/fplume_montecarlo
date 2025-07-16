@@ -15,13 +15,6 @@ from loguru import logger
 # Load environment variables from .env file if it exists
 load_dotenv()
 
-# Simulation settings
-N_MONTECARLO = 100                               # Number of Monte Carlo simulations to run (adjust as needed for your analysis)
-
-# --- API Keys directory (user-specific)
-KEYS_DIR = '/home/danie/keys'                    # <- Replace with your local path to the Copernicus API key file
-KEY_ERA5_FILE = 'copernicus_era5_key.txt'        # <- Replace with your file containing the Copernicus API key
-
 # --- Root directory
 PROJ_ROOT = Path(__file__).resolve().parents[2]
 logger.info(f"PROJ_ROOT path is: {PROJ_ROOT}")
@@ -58,6 +51,7 @@ PLOTS_DIR = PROJ_ROOT / "plots"                              # Parent directory
 
 # --- FPLUME executable directory (download from FPLUME v1.3 from http://datasim.ov.ingv.it/models/fplume.html)
 FPLUME_EXE_DIR = PROJ_ROOT / "fplume-1.3/src"
+
 
 # If tqdm is installed, configure loguru with tqdm.write
 # https://github.com/Delgan/loguru/issues/135

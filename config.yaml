@@ -1,0 +1,34 @@
+# config.yaml
+
+volcano: Etna
+
+n_montecarlo: 10000
+
+user_paths:
+  key_dir: '/home/danie/keys'
+  key_era5_file: 'copernicus_era5_key.txt'
+
+parameters_montecarlo:
+  MER:
+    mean: MER          # Placeholder to be replaced dynamically
+    std_factor: 0.223  # Use this in Python to compute std = std_factor * MER
+
+  exit_velocity:
+    mean: exit_velocity  # Also a placeholder
+    std: 25
+
+  exit_temperature:
+    mean: 1390
+    std: 24
+
+  exit_water_fraction:
+    mean: 3
+    std: 0.5
+
+  cp:
+    mean: 1300
+    std: 50
+
+  c_umbrella:
+    mean: 1.2
+    std: 0.025
