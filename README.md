@@ -9,7 +9,7 @@ https://cookiecutter-data-science.drivendata.org/
 ```
 ├── Makefile                                            # Makefile with convenience commands like `make data` or `make train`
 ├── README.md                                           # This README
-|-- config.yaml                                         # Configuration file
+├── config.yaml                                         # Configuration file
 ├── bin                                                 # Executables
 │   └── run_montecarlo.sh                               # Run the full workflow
 ├── data                                                
@@ -33,14 +33,14 @@ https://cookiecutter-data-science.drivendata.org/
     └── fplume_montecarlo                               
         ├── __init__.py                                 
         ├── config.py                                   # Global configuration and constants
-        |-- volcanoes.py                                # Define the class volcano
+        ├── volcanoes.py                                # Define the class volcano
         ├── create_met_file.py                          # Generate .met file from ERA5 reanalysis
         ├── download_era5.py                            # Download ERA5 datasets
         ├── generate_inp_file.py                        # Generate .inp file for FPLUME
         ├── plot_montecarlo.py                          # Plot Monte Carlo results
         ├── prepare_input_files.py                      # Prepare inputs for FPLUME runs
         ├── run_montecarlo.py                           # Run Monte Carlo Simulation
-        |-- qqplot_montecarlo.py                        # Create qq plots from Monte Carlo results
+        ├── qqplot_montecarlo.py                        # Create qq plots from Monte Carlo results
         └── utilities.py                                # Helper functions
 ```
 ## Requirements
